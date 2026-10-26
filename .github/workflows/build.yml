@@ -25,8 +25,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Generate Android System Files
-        run: flutter create --platforms=android --org=com.brahma .
+      - name: Generate Android Build Files
+        run: |
+          flutter create --org com.brahma temp_app
+          cp -r temp_app/android .
+          rm -rf temp_app
 
       - name: Install Dependencies
         run: flutter pub get
@@ -34,7 +37,7 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --debug
 
-      - name: Upload APK to Artifacts
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Brahma-LifeOS-APK

@@ -25,20 +25,22 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Generate Android Build Files
+      - name: Generate Fresh Flutter App & Build APK
         run: |
-          flutter create --org com.brahma temp_app
-          cp -r temp_app/android .
-          rm -rf temp_app
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build Android APK
-        run: flutter build apk --debug
+          # 1. Create a clean Flutter project structure
+          flutter create --org com.brahma brahma_flutter_app
+          
+          # 2. Inject our Brahma main.dart and pubspec.yaml into it
+          cp lib/main.dart brahma_flutter_app/lib/main.dart
+          cp pubspec.yaml brahma_flutter_app/pubspec.yaml
+          
+          # 3. Navigate into the folder, fetch packages & build APK
+          cd brahma_flutter_app
+          flutter pub get
+          flutter build apk --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Brahma-LifeOS-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: brahma_flutter_app/build/app/outputs/flutter-apk/app-debug.apk

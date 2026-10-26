@@ -23,24 +23,20 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: true
 
-      - name: Generate Fresh Flutter App & Build APK
+      - name: Build Android APK
         run: |
-          # 1. Create a clean Flutter project structure
-          flutter create --org com.brahma brahma_flutter_app
-          
-          # 2. Inject our Brahma main.dart and pubspec.yaml into it
-          cp lib/main.dart brahma_flutter_app/lib/main.dart
-          cp pubspec.yaml brahma_flutter_app/pubspec.yaml
-          
-          # 3. Navigate into the folder, fetch packages & build APK
-          cd brahma_flutter_app
+          flutter config --no-analytics
+          flutter create --org com.brahma --project-name brahma app_temp
+          cp lib/main.dart app_temp/lib/main.dart
+          cp pubspec.yaml app_temp/pubspec.yaml
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' app_temp/android/app/build.gradle || true
+          cd app_temp
           flutter pub get
-          flutter build apk --debug
+          flutter build apk --debug --no-tree-shake-icons
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Brahma-LifeOS-APK
-          path: brahma_flutter_app/build/app/outputs/flutter-apk/app-debug.apk
+          path: app_temp/build/app/outputs/flutter-apk/app-debug.apk
